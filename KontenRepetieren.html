@@ -1,0 +1,231 @@
+
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Konto Lernprogram</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background-color: #f0f0f0;
+            margin: 0;
+        }
+        h1 {
+            text-align: center;
+            font-size: 28px;
+        }
+        #konto-info {
+            font-size: 20px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .result {
+            font-size: 18px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .buttons {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        button {
+            padding: 15px;
+            font-size: 16px;
+            cursor: pointer;
+            flex: 1 1 45%;
+            max-width: 150px;
+        }
+        #popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            padding: 20px;
+            border: 2px solid #ccc;
+            z-index: 100;
+        }
+        #popup button {
+            margin-top: 20px;
+        }
+        #overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 50;
+        }
+        #game-container {
+            position: relative;
+            margin: 0 auto;
+            width: 400px;
+            height: 250px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #fafafa;
+        }
+        #staircase {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        #custom-stair {
+            position: absolute;
+            bottom: 20px;
+            left: 0;
+        }
+        #goal {
+            width: 60px;
+            height: 40px;
+            border: 2px solid green;
+            text-align: center;
+            padding-top: 5px;
+            position: absolute;
+            top: 10px;
+            left: 330px;
+        }
+        #star {
+            position: absolute;
+            bottom: 60px; /* Added offset to move star above the staircase */
+            left: 10px;   /* Start at the same x-coordinate as the stair */
+            transition: all 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Konto Lernprogram</h1>
+
+<div id="konto-info">Konto wird geladen...</div>
+<div class="result" id="result">Richtig: 0 | Falsch: 0</div>
+
+<div class="buttons">
+    <button onclick="checkAnswer('Aktivkonto')">Aktivkonto</button>
+    <button onclick="checkAnswer('Passivkonto')">Passivkonto</button>
+    <button onclick="checkAnswer('Aufwandskonto')">Aufwandskonto</button>
+    <button onclick="checkAnswer('Ertragskonto')">Ertragskonto</button>
+</div>
+
+<div id="game-container">
+    <div id="staircase">
+        <div id="custom-stair">
+            <svg width="400" height="200">
+                <polyline points="10,160 10,140 50,140 50,120 90,120 90,100 130,100 130,80 170,80 170,60 210,60 210,40 250,40 250,20 290,20 290,0 330,0" 
+                    style="fill:none;stroke:black;stroke-width:3" />
+            </svg>
+        </div>
+        <div id="goal">Ziel</div>
+        <div id="star">⭐</div>
+    </div>
+</div>
+
+<div id="popup">
+    <div id="popup-message"></div>
+    <button onclick="closePopup()">OK</button>
+</div>
+<div id="overlay"></div>
+
+<script>
+    const kontenplan = {
+        "1000": { "name": "Kasse", "typ": "Aktivkonto" },
+        "1020": { "name": "Bankguthaben (inkl. PostFinance)", "typ": "Aktivkonto" },
+        "1060": { "name": "Wertschriften (mit Börsenkurs)", "typ": "Aktivkonto" },
+        "1100": { "name": "Forderungen aus Lieferungen und Leistungen", "typ": "Aktivkonto" },
+        "2000": { "name": "Verbindlichkeiten aus Lieferungen und Leistungen", "typ": "Passivkonto" },
+        "3000": { "name": "Produktionserlöse", "typ": "Ertragskonto" },
+        "4000": { "name": "Materialaufwand Produktion", "typ": "Aufwandskonto" }
+    };
+
+    let correctAnswers = 0;
+    let wrongAnswers = 0;
+    let currentKonto = '';
+    let currentStep = 0;
+    const totalSteps = 8;
+
+    function moveStar(step) {
+        const star = document.getElementById('star');
+        const xPositions = [10, 50, 90, 130, 170, 210, 250, 290, 330];  // X-coordinates to exactly match the staircase
+        const yPositions = [160, 140, 120, 100, 80, 60, 40, 20, 0];    // Y-coordinates exactly matching the staircase
+        
+        // Set the star's position according to the current step, adding offset
+        star.style.transform = `translate(${xPositions[step]}px, -${160 - yPositions[step] + 40}px)`;  // Added 40px offset to move star above
+    }
+
+    function checkAnswer(selectedTyp) {
+        const correctTyp = kontenplan[currentKonto].typ;
+        if (selectedTyp === correctTyp) {
+            correctAnswers++;
+            if (currentStep < totalSteps) {
+                currentStep++;
+                moveStar(currentStep);
+            }
+            if (currentStep === totalSteps) {
+                showPopup('Geschafft! Du hast das Ziel erreicht.');
+            }
+        } else {
+            wrongAnswers++;
+            currentStep = 0;
+            moveStar(currentStep);
+            showPopup(`Falsche Antwort! Zurück auf Start. Richtige Antwort war: ${kontenplan[currentKonto].name} - ${correctTyp}`);
+        }
+        document.getElementById('result').textContent = `Richtig: ${correctAnswers} | Falsch: ${wrongAnswers}`;
+        if (currentStep < totalSteps) {
+            randomKonto();
+        }
+    }
+
+    function randomKonto() {
+        const keys = Object.keys(kontenplan);
+        currentKonto = keys[Math.floor(Math.random() * keys.length)];
+        const kontoInfo = kontenplan[currentKonto].name;
+        document.getElementById('konto-info').textContent = `Konto: ${currentKonto} - ${kontoInfo}`;
+    }
+
+    function showPopup(message) {
+        document.getElementById('popup-message').textContent = message;
+        document.getElementById('popup').style.display = 'block';
+        document.getElementById('overlay').style.display = 'block';
+        if (message.includes('Geschafft!')) {
+            document.querySelectorAll('button').forEach(button => button.disabled = true);
+            document.querySelector('#popup button').disabled = false;
+        }
+    }
+
+    function closePopup() {
+        document.getElementById('popup').style.display = 'none';
+        document.getElementById('overlay').style.display = 'none';
+
+        if (document.getElementById('popup-message').textContent.includes('Geschafft!')) {
+            resetGame();
+            document.querySelectorAll('button').forEach(button => button.disabled = false);
+        } else {
+            randomKonto();
+        }
+    }
+
+    function resetGame() {
+        correctAnswers = 0;
+        wrongAnswers = 0;
+        currentStep = 0;
+        moveStar(currentStep);
+        document.getElementById('result').textContent = 'Richtig: 0 | Falsch: 0';
+        randomKonto();
+    }
+
+    window.onload = function() {
+        randomKonto();
+    };
+</script>
+
+</body>
+</html>
