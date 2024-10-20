@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Konto Lernprogramm</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background-color: #f0f0f0;
+            margin: 0;
+        }
+        h1 {
+            text-align: center;
+            font-size: 28px;
+        }
+        #konto-info {
+            font-size: 20px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .result {
+            font-size: 18px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .buttons {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        button {
+            padding: 15px;
+            font-size: 16px;
+            cursor: pointer;
+            flex: 1 1 45%;
+            max-width: 150px;
+        }
+        #popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            padding: 20px;
+            border: 2px solid #ccc;
+            z-index: 100;
+        }
+        #popup button {
+            margin-top: 20px;
+        }
+        #overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 50;
+        }
+
+        /* Responsive Styles */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            h1 {
+                font-size: 24px;
+            }
+            #konto-info {
+                font-size: 18px;
+            }
+            .result {
+                font-size: 16px;
+            }
+            button {
+                font-size: 14px;
+                padding: 10px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 20px;
+            }
+            #konto-info {
+                font-size: 16px;
+            }
+            .result {
+                font-size: 14px;
+            }
+            button {
+                font-size: 12px;
+                padding: 8px;
+                max-width: 100px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<h1>Konto Lernprogramm</h1>
+
+<div id="konto-info">Konto wird geladen...</div>
+<div class="result" id="result">Richtig: 0 | Falsch: 0</div>
+
+<div class="buttons">
+    <button onclick="checkAnswer('Aktivkonto')">Aktivkonto</button>
+    <button onclick="checkAnswer('Passivkonto')">Passivkonto</button>
+    <button onclick="checkAnswer('Aufwandskonto')">Aufwandskonto</button>
+    <button onclick="checkAnswer('Ertragskonto')">Ertragskonto</button>
+</div>
+
+<div id="popup">
+    <div id="popup-message"></div>
+    <button onclick="closePopup()">OK</button>
+</div>
+<div id="overlay"></div>
+
+<script>
+    const kontenplan = {
+        "1000": { "name": "Kasse", "typ": "Aktivkonto" },
+        "1020": { "name": "Bankguthaben (inkl. PostFinance)", "typ": "Aktivkonto" },
+        "1060": { "name": "Wertschriften (mit Börsenkurs)", "typ": "Aktivkonto" },
+        "1100": { "name": "Forderungen aus Lieferungen und Leistungen", "typ": "Aktivkonto" },
+        "2000": { "name": "Verbindlichkeiten aus Lieferungen und Leistungen", "typ": "Passivkonto" },
+        "3000": { "name": "Produktionserlöse", "typ": "Ertragskonto" },
+        "4000": { "name": "Materialaufwand Produktion", "typ": "Aufwandskonto" }
+    };
+
+    let correctAnswers = 0;
+    let wrongAnswers = 0;
+    let currentKonto = '';
+
+    // Wählt ein zufälliges Konto aus und zeigt es an
+    function randomKonto() {
+        const keys = Object.keys(kontenplan);
+        currentKonto = keys[Math.floor(Math.random() * keys.length)];
+        const kontoInfo = kontenplan[currentKonto].name;
+        document.getElementById('konto-info').textContent = `Konto: ${currentKonto} - ${kontoInfo}`;
+    }
+
+    function checkAnswer(selectedTyp) {
+        const correctTyp = kontenplan[currentKonto].typ;
+        if (selectedTyp === correctTyp) {
+            correctAnswers++;
+        } else {
+            wrongAnswers++;
+            showPopup(`Richtige Antwort: ${kontenplan[currentKonto].name} - ${correctTyp}`);
+        }
+        document.getElementById('result').textContent = `Richtig: ${correctAnswers} | Falsch: ${wrongAnswers}`;
+        if (selectedTyp === correctTyp) {
+            randomKonto();
+        }
+    }
+
+    function showPopup(message) {
+        document.getElementById('popup-message').textContent = message;
+        document.getElementById('popup').style.display = 'block';
+        document.getElementById('overlay').style.display = 'block';
+    }
+
+    function closePopup() {
+        document.getElementById('popup').style.display = 'none';
+        document.getElementById('overlay').style.display = 'none';
+        randomKonto();
+    }
+
+    // Initialisiere das Programm nach dem Laden der Seite
+    window.onload = function() {
+        randomKonto();
+    };
+</script>
+
+</body>
+</html>
