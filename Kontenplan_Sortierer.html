@@ -9,44 +9,46 @@
             font-family: Arial, sans-serif;
             margin: 10px;
             display: flex;
-            flex-direction: row;
-            justify-content: space-between;
+            flex-direction: column; /* Anpassung für mobile Geräte */
+            gap: 10px;
         }
         .konten-container {
-            width: 30%;
+            width: 100%;
             border: 1px solid #ccc;
             padding: 10px;
             border-radius: 5px;
-            background-color: #f9f9f9; color: #001f3f;
+            background-color: #f9f9f9; 
+            color: #001f3f;
             overflow-y: auto;
-            max-height: 80vh;
+            max-height: 50vh;
         }
         .konten-container h2 {
-            font-size: 1.8em;
+            font-size: 1.5em;
             font-weight: bold;
+            text-align: center;
         }
         .konten-item {
-            padding: 5px;
+            padding: 10px;
             margin: 5px 0;
             background-color: #f0f0f0;
             border: 1px solid #ccc;
             cursor: move;
+            font-size: 1em;
             display: flex;
             justify-content: space-between;
-            font-size: 0.9em; /* Ensure consistent font size */
         }
         .konten-item.dragging {
             opacity: 0.5;
         }
         .konten-title {
-            font-size: 1.5em;
+            font-size: 1.2em;
             font-style: italic;
             font-weight: bold;
             text-align: center;
             margin: 10px 0;
             border: 2px dashed #ccc;
-            padding: 5px;
-            min-height: 50px;
+            padding: 10px;
+            min-height: 60px;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -57,7 +59,7 @@
         }
         .feedback {
             margin-left: 10px;
-            font-size: 1.2em;
+            font-size: 1em;
         }
         .feedback.correct {
             color: green;
@@ -66,10 +68,24 @@
             color: red;
         }
         button {
-            padding: 5px 10px;
+            padding: 10px;
             margin-top: 10px;
-            margin-left: 1%; /* Shift button closer to the containers */
-            font-size: 0.9em;
+            font-size: 1em;
+            width: 100%;
+        }
+
+        @media (min-width: 768px) {
+            body {
+                flex-direction: row;
+                justify-content: space-between;
+            }
+            .konten-container {
+                width: 30%;
+                max-height: 80vh;
+            }
+            button {
+                width: auto;
+            }
         }
     </style>
 </head>
@@ -114,9 +130,7 @@
         <div class="konten-item" draggable="true">Jahresgewinn oder Jahresverlust</div>
     </div>
 
-    <div style="width: 100%; text-align: center;">
-        <button onclick="checkOrder()">Überprüfen</button>
-    </div>
+    <button onclick="checkOrder()">Überprüfen</button>
 
     <script>
         let draggedItem = null;
@@ -130,17 +144,11 @@
                 placeholder.style.backgroundColor = '#e0e0e0';
                 placeholder.style.height = `${item.offsetHeight}px`;
                 placeholder.style.margin = `${item.style.margin}`;
-                placeholder.style.fontSize = '1em'; /* Maintain small font size during drag */
                 setTimeout(() => item.classList.add('dragging'), 0);
             });
 
             item.addEventListener('dragend', () => {
                 item.classList.remove('dragging');
-                if (item.parentElement.classList.contains('konten-title')) {
-                    item.style.fontSize = '0.75em'; /* Smaller font size when inside a category */
-                } else {
-                    item.style.fontSize = '1em'; /* Reset font size after drag */
-                }
                 draggedItem = null;
                 placeholder.remove();
                 placeholder = null;
@@ -196,21 +204,8 @@
                 const category = title.dataset.category;
                 const items = Array.from(title.querySelectorAll('.konten-item'));
 
-                // Remove existing feedback before new checking
-                items.forEach(item => {
-                    const existingFeedback = item.querySelector('.feedback');
-                    if (existingFeedback) {
-                        existingFeedback.remove();
-                    }
-                });
-
-                // Filter the correct plan based on selected items
-                const filteredCorrectPlan = correctPlan[category]?.filter(planItem =>
-                    items.some(selected => selected.textContent.trim() === planItem)
-                );
-
                 items.forEach((item, index) => {
-                    const isCorrect = filteredCorrectPlan?.[index] === item.textContent.trim();
+                    const isCorrect = correctPlan[category]?.[index] === item.textContent.trim();
                     const feedback = document.createElement('span');
                     feedback.classList.add('feedback');
                     feedback.textContent = isCorrect ? '✅' : '❌';
