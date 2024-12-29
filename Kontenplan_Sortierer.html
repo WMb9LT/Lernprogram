@@ -7,45 +7,46 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            margin: 10px;
+            margin: 5px;
             display: flex;
-            flex-direction: column; /* Anpassung für mobile Geräte */
-            gap: 10px;
+            flex-direction: column;
+            gap: 5px;
+            font-size: 0.8em; /* Skalierung für kleine Displays */
         }
         .konten-container {
             width: 100%;
             border: 1px solid #ccc;
-            padding: 10px;
+            padding: 5px;
             border-radius: 5px;
             background-color: #f9f9f9; 
             color: #001f3f;
             overflow-y: auto;
-            max-height: 50vh;
+            max-height: 40vh; /* Kleinere maximale Höhe */
         }
         .konten-container h2 {
-            font-size: 1.5em;
+            font-size: 1.2em; /* Verkleinerte Schriftgröße */
             font-weight: bold;
             text-align: center;
         }
         .konten-item {
-            padding: 10px;
-            margin: 5px 0;
+            padding: 5px;
+            margin: 3px 0;
             background-color: #f0f0f0;
             border: 1px solid #ccc;
             cursor: pointer;
-            font-size: 1em;
+            font-size: 0.9em; /* Verkleinerte Schriftgröße */
             display: flex;
             justify-content: space-between;
         }
         .konten-title {
-            font-size: 1.2em;
+            font-size: 1em; /* Verkleinerte Schriftgröße */
             font-style: italic;
             font-weight: bold;
             text-align: center;
-            margin: 10px 0;
-            border: 2px dashed #ccc;
-            padding: 10px;
-            min-height: 60px;
+            margin: 5px 0;
+            border: 1px dashed #ccc;
+            padding: 5px;
+            min-height: 40px;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -56,8 +57,8 @@
             background-color: #e0f7fa;
         }
         .feedback {
-            margin-left: 10px;
-            font-size: 1em;
+            margin-left: 5px;
+            font-size: 0.9em;
         }
         .feedback.correct {
             color: green;
@@ -66,9 +67,9 @@
             color: red;
         }
         button {
-            padding: 10px;
-            margin-top: 10px;
-            font-size: 1em;
+            padding: 5px;
+            margin-top: 5px;
+            font-size: 0.9em; /* Verkleinerte Schriftgröße */
             width: 100%;
         }
 
@@ -79,7 +80,7 @@
             }
             .konten-container {
                 width: 30%;
-                max-height: 80vh;
+                max-height: 60vh;
             }
             button {
                 width: auto;
