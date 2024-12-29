@@ -32,13 +32,10 @@
             margin: 5px 0;
             background-color: #f0f0f0;
             border: 1px solid #ccc;
-            cursor: move;
+            cursor: pointer;
             font-size: 1em;
             display: flex;
             justify-content: space-between;
-        }
-        .konten-item.dragging {
-            opacity: 0.5;
         }
         .konten-title {
             font-size: 1.2em;
@@ -54,8 +51,9 @@
             align-items: center;
             justify-content: start;
         }
-        .konten-title.dragging-over {
+        .konten-title.selected {
             border-color: blue;
+            background-color: #e0f7fa;
         }
         .feedback {
             margin-left: 10px;
@@ -104,92 +102,54 @@
 
     <div class="konten-container" id="konten">
         <h2>Konten</h2>
-        <div class="konten-item" draggable="true">Kasse</div>
-        <div class="konten-item" draggable="true">Bankguthaben (inkl. PostFinance)</div>
-        <div class="konten-item" draggable="true">Wertschriften (mit Börsenkurs)</div>
-        <div class="konten-item" draggable="true">Forderungen aus Lieferungen und Leistungen</div>
-        <div class="konten-item" draggable="true">Vorsteuer MWST</div>
-        <div class="konten-item" draggable="true">Verrechnungssteuer (Guthaben)</div>
-        <div class="konten-item" draggable="true">Sonstige kurzfristige Forderungen</div>
-        <div class="konten-item" draggable="true">Handelswaren (Warenvorrat)</div>
-        <div class="konten-item" draggable="true">Rohstoffe</div>
-        <div class="konten-item" draggable="true">Fertige Erzeugnisse (Fertigfabrikate)</div>
-        <div class="konten-item" draggable="true">Darlehen (Aktivdarlehen)</div>
-        <div class="konten-item" draggable="true">Maschinen und Apparate</div>
-        <div class="konten-item" draggable="true">Mobiliar und Einrichtungen</div>
-        <div class="konten-item" draggable="true">Büromaschinen (inkl. Informatik, Kommunikation)</div>
-        <div class="konten-item" draggable="true">Fahrzeuge</div>
-        <div class="konten-item" draggable="true">Werkzeuge und Geräte</div>
-        <div class="konten-item" draggable="true">Geschäftsliegenschaften</div>
-        <div class="konten-item" draggable="true">Verbindlichkeiten aus Lieferungen und Leistungen</div>
-        <div class="konten-item" draggable="true">Bankverbindlichkeiten</div>
-        <div class="konten-item" draggable="true">Geschuldete MWST</div>
-        <div class="konten-item" draggable="true">Darlehen</div>
-        <div class="konten-item" draggable="true">Hypotheken</div>
-        <div class="konten-item" draggable="true">Eigenkapital</div>
-        <div class="konten-item" draggable="true">Jahresgewinn oder Jahresverlust</div>
+        <div class="konten-item">Kasse</div>
+        <div class="konten-item">Bankguthaben (inkl. PostFinance)</div>
+        <div class="konten-item">Wertschriften (mit Börsenkurs)</div>
+        <div class="konten-item">Forderungen aus Lieferungen und Leistungen</div>
+        <div class="konten-item">Vorsteuer MWST</div>
+        <div class="konten-item">Verrechnungssteuer (Guthaben)</div>
+        <div class="konten-item">Sonstige kurzfristige Forderungen</div>
+        <div class="konten-item">Handelswaren (Warenvorrat)</div>
+        <div class="konten-item">Rohstoffe</div>
+        <div class="konten-item">Fertige Erzeugnisse (Fertigfabrikate)</div>
+        <div class="konten-item">Darlehen (Aktivdarlehen)</div>
+        <div class="konten-item">Maschinen und Apparate</div>
+        <div class="konten-item">Mobiliar und Einrichtungen</div>
+        <div class="konten-item">Büromaschinen (inkl. Informatik, Kommunikation)</div>
+        <div class="konten-item">Fahrzeuge</div>
+        <div class="konten-item">Werkzeuge und Geräte</div>
+        <div class="konten-item">Geschäftsliegenschaften</div>
+        <div class="konten-item">Verbindlichkeiten aus Lieferungen und Leistungen</div>
+        <div class="konten-item">Bankverbindlichkeiten</div>
+        <div class="konten-item">Geschuldete MWST</div>
+        <div class="konten-item">Darlehen</div>
+        <div class="konten-item">Hypotheken</div>
+        <div class="konten-item">Eigenkapital</div>
+        <div class="konten-item">Jahresgewinn oder Jahresverlust</div>
     </div>
 
     <button onclick="checkOrder()">Überprüfen</button>
 
     <script>
-        let draggedItem = null;
-        let placeholder = null;
+        let selectedCategory = null;
+
+        document.querySelectorAll('.konten-title').forEach(title => {
+            title.addEventListener('click', () => {
+                document.querySelectorAll('.konten-title').forEach(t => t.classList.remove('selected'));
+                title.classList.add('selected');
+                selectedCategory = title;
+            });
+        });
 
         document.querySelectorAll('.konten-item').forEach(item => {
-            item.addEventListener('dragstart', () => {
-                draggedItem = item;
-                placeholder = document.createElement('div');
-                placeholder.classList.add('konten-item');
-                placeholder.style.backgroundColor = '#e0e0e0';
-                placeholder.style.height = `${item.offsetHeight}px`;
-                placeholder.style.margin = `${item.style.margin}`;
-                setTimeout(() => item.classList.add('dragging'), 0);
-            });
-
-            item.addEventListener('dragend', () => {
-                item.classList.remove('dragging');
-                draggedItem = null;
-                placeholder.remove();
-                placeholder = null;
-            });
-        });
-
-        document.querySelectorAll('.konten-title, .konten-container').forEach(container => {
-            container.addEventListener('dragover', e => {
-                e.preventDefault();
-                const afterElement = getDragAfterElement(container, e.clientY);
-                if (placeholder) {
-                    if (afterElement == null) {
-                        container.appendChild(placeholder);
-                    } else {
-                        container.insertBefore(placeholder, afterElement);
-                    }
-                }
-            });
-
-            container.addEventListener('drop', () => {
-                if (draggedItem) {
-                    if (placeholder.parentNode) {
-                        placeholder.parentNode.replaceChild(draggedItem, placeholder);
-                    }
-                }
-            });
-        });
-
-        function getDragAfterElement(container, y) {
-            const draggableElements = [...container.querySelectorAll('.konten-item:not(.dragging)')];
-
-            return draggableElements.reduce((closest, child) => {
-                const box = child.getBoundingClientRect();
-                const offset = y - box.top - box.height / 2;
-                if (offset < 0 && offset > closest.offset) {
-                    return { offset: offset, element: child };
+            item.addEventListener('click', () => {
+                if (selectedCategory) {
+                    selectedCategory.appendChild(item);
                 } else {
-                    return closest;
+                    alert('Bitte zuerst eine Kategorie auswählen.');
                 }
-            }, { offset: Number.NEGATIVE_INFINITY }).element;
-        }
+            });
+        });
 
         function checkOrder() {
             const correctPlan = {
