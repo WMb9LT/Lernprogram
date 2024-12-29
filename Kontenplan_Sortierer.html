@@ -175,6 +175,9 @@
                 'Eigenkapital': ["Eigenkapital", "Jahresgewinn oder Jahresverlust"]
             };
 
+            // Entfernt alle bisherigen Feedback-Elemente
+            document.querySelectorAll('.feedback').forEach(fb => fb.remove());
+
             document.querySelectorAll('.konten-title').forEach(title => {
                 const category = title.dataset.category;
                 const items = Array.from(title.querySelectorAll('.konten-item'));
@@ -188,10 +191,6 @@
                     item.appendChild(feedback);
                 });
             });
-
-            setTimeout(() => {
-                document.querySelectorAll('.feedback').forEach(fb => fb.remove());
-            }, 2000); // Entfernt Feedback nach 2 Sekunden
         }
 
         // Mischen der Kontenliste beim Laden der Seite
