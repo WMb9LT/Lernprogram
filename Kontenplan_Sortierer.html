@@ -14,7 +14,6 @@
             font-size: 0.8em;
         }
         .konten-container {
-            width: 100%;
             border: 1px solid #ccc;
             padding: 5px;
             border-radius: 5px;
@@ -76,19 +75,20 @@
         @media (min-width: 768px) {
             body {
                 flex-direction: row;
-                justify-content: space-between;
+                gap: 10px;
+            }
+            .konten-container {
+                width: 30%;
+                max-height: 80vh;
             }
             #aktive {
-                width: 30%;
+                order: 1;
             }
             #passive {
-                width: 30%;
+                order: 2;
             }
             #konten {
-                width: 30%;
-            }
-            button {
-                width: auto;
+                order: 3;
             }
         }
     </style>
@@ -175,7 +175,6 @@
                 'Eigenkapital': ["Eigenkapital", "Jahresgewinn oder Jahresverlust"]
             };
 
-            // Entfernt alle bisherigen Feedback-Elemente
             document.querySelectorAll('.feedback').forEach(fb => fb.remove());
 
             document.querySelectorAll('.konten-title').forEach(title => {
@@ -193,7 +192,6 @@
             });
         }
 
-        // Mischen der Kontenliste beim Laden der Seite
         document.addEventListener('DOMContentLoaded', shuffleKonten);
     </script>
 </body>
