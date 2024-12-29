@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kontenplan Sortierer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 10px;
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+        }
+        .konten-container {
+            width: 30%;
+            border: 1px solid #ccc;
+            padding: 10px;
+            border-radius: 5px;
+            background-color: #f9f9f9; color: #001f3f;
+            overflow-y: auto;
+            max-height: 80vh;
+        }
+        .konten-container h2 {
+            font-size: 1.8em;
+            font-weight: bold;
+        }
+        .konten-item {
+            padding: 5px;
+            margin: 5px 0;
+            background-color: #f0f0f0;
+            border: 1px solid #ccc;
+            cursor: move;
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9em; /* Ensure consistent font size */
+        }
+        .konten-item.dragging {
+            opacity: 0.5;
+        }
+        .konten-title {
+            font-size: 1.5em;
+            font-style: italic;
+            font-weight: bold;
+            text-align: center;
+            margin: 10px 0;
+            border: 2px dashed #ccc;
+            padding: 5px;
+            min-height: 50px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: start;
+        }
+        .konten-title.dragging-over {
+            border-color: blue;
+        }
+        .feedback {
+            margin-left: 10px;
+            font-size: 1.2em;
+        }
+        .feedback.correct {
+            color: green;
+        }
+        .feedback.incorrect {
+            color: red;
+        }
+        button {
+            padding: 5px 10px;
+            margin-top: 10px;
+            margin-left: 1%; /* Shift button closer to the containers */
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <div class="konten-container" id="aktive">
+        <h2>Aktive</h2>
+        <div class="konten-title" data-category="Umlaufvermögen">Umlaufvermögen</div>
+        <div class="konten-title" data-category="Anlagevermögen">Anlagevermögen</div>
+    </div>
+    <div class="konten-container" id="passive">
+        <h2>Passiven</h2>
+        <div class="konten-title" data-category="Kurzfristiges Fremdkapital">Kurzfristiges Fremdkapital</div>
+        <div class="konten-title" data-category="Langfristiges Fremdkapital">Langfristiges Fremdkapital</div>
+        <div class="konten-title" data-category="Eigenkapital">Eigenkapital</div>
+    </div>
+
+    <div class="konten-container" id="konten">
+        <h2>Konten</h2>
+        <div class="konten-item" draggable="true">Kasse</div>
+        <div class="konten-item" draggable="true">Bankguthaben (inkl. PostFinance)</div>
+        <div class="konten-item" draggable="true">Wertschriften (mit Börsenkurs)</div>
+        <div class="konten-item" draggable="true">Forderungen aus Lieferungen und Leistungen</div>
+        <div class="konten-item" draggable="true">Vorsteuer MWST</div>
+        <div class="konten-item" draggable="true">Verrechnungssteuer (Guthaben)</div>
+        <div class="konten-item" draggable="true">Sonstige kurzfristige Forderungen</div>
+        <div class="konten-item" draggable="true">Handelswaren (Warenvorrat)</div>
+        <div class="konten-item" draggable="true">Rohstoffe</div>
+        <div class="konten-item" draggable="true">Fertige Erzeugnisse (Fertigfabrikate)</div>
+        <div class="konten-item" draggable="true">Darlehen (Aktivdarlehen)</div>
+        <div class="konten-item" draggable="true">Maschinen und Apparate</div>
+        <div class="konten-item" draggable="true">Mobiliar und Einrichtungen</div>
+        <div class="konten-item" draggable="true">Büromaschinen (inkl. Informatik, Kommunikation)</div>
+        <div class="konten-item" draggable="true">Fahrzeuge</div>
+        <div class="konten-item" draggable="true">Werkzeuge und Geräte</div>
+        <div class="konten-item" draggable="true">Geschäftsliegenschaften</div>
+        <div class="konten-item" draggable="true">Verbindlichkeiten aus Lieferungen und Leistungen</div>
+        <div class="konten-item" draggable="true">Bankverbindlichkeiten</div>
+        <div class="konten-item" draggable="true">Geschuldete MWST</div>
+        <div class="konten-item" draggable="true">Darlehen</div>
+        <div class="konten-item" draggable="true">Hypotheken</div>
+        <div class="konten-item" draggable="true">Eigenkapital</div>
+        <div class="konten-item" draggable="true">Jahresgewinn oder Jahresverlust</div>
+    </div>
+
+    <div style="width: 100%; text-align: center;">
+        <button onclick="checkOrder()">Überprüfen</button>
+    </div>
+
+    <script>
+        let draggedItem = null;
+        let placeholder = null;
+
+        document.querySelectorAll('.konten-item').forEach(item => {
+            item.addEventListener('dragstart', () => {
+                draggedItem = item;
+                placeholder = document.createElement('div');
+                placeholder.classList.add('konten-item');
+                placeholder.style.backgroundColor = '#e0e0e0';
+                placeholder.style.height = `${item.offsetHeight}px`;
+                placeholder.style.margin = `${item.style.margin}`;
+                placeholder.style.fontSize = '1em'; /* Maintain small font size during drag */
+                setTimeout(() => item.classList.add('dragging'), 0);
+            });
+
+            item.addEventListener('dragend', () => {
+                item.classList.remove('dragging');
+                if (item.parentElement.classList.contains('konten-title')) {
+                    item.style.fontSize = '0.75em'; /* Smaller font size when inside a category */
+                } else {
+                    item.style.fontSize = '1em'; /* Reset font size after drag */
+                }
+                draggedItem = null;
+                placeholder.remove();
+                placeholder = null;
+            });
+        });
+
+        document.querySelectorAll('.konten-title, .konten-container').forEach(container => {
+            container.addEventListener('dragover', e => {
+                e.preventDefault();
+                const afterElement = getDragAfterElement(container, e.clientY);
+                if (placeholder) {
+                    if (afterElement == null) {
+                        container.appendChild(placeholder);
+                    } else {
+                        container.insertBefore(placeholder, afterElement);
+                    }
+                }
+            });
+
+            container.addEventListener('drop', () => {
+                if (draggedItem) {
+                    if (placeholder.parentNode) {
+                        placeholder.parentNode.replaceChild(draggedItem, placeholder);
+                    }
+                }
+            });
+        });
+
+        function getDragAfterElement(container, y) {
+            const draggableElements = [...container.querySelectorAll('.konten-item:not(.dragging)')];
+
+            return draggableElements.reduce((closest, child) => {
+                const box = child.getBoundingClientRect();
+                const offset = y - box.top - box.height / 2;
+                if (offset < 0 && offset > closest.offset) {
+                    return { offset: offset, element: child };
+                } else {
+                    return closest;
+                }
+            }, { offset: Number.NEGATIVE_INFINITY }).element;
+        }
+
+        function checkOrder() {
+            const correctPlan = {
+                'Umlaufvermögen': ["Kasse", "Bankguthaben (inkl. PostFinance)", "Wertschriften (mit Börsenkurs)", "Forderungen aus Lieferungen und Leistungen", "Vorsteuer MWST", "Verrechnungssteuer (Guthaben)", "Sonstige kurzfristige Forderungen", "Handelswaren (Warenvorrat)", "Rohstoffe", "Fertige Erzeugnisse (Fertigfabrikate)"],
+                'Anlagevermögen': ["Darlehen (Aktivdarlehen)", "Maschinen und Apparate", "Mobiliar und Einrichtungen", "Büromaschinen (inkl. Informatik, Kommunikation)", "Fahrzeuge", "Werkzeuge und Geräte", "Geschäftsliegenschaften"],
+                'Kurzfristiges Fremdkapital': ["Verbindlichkeiten aus Lieferungen und Leistungen", "Bankverbindlichkeiten", "Geschuldete MWST"],
+                'Langfristiges Fremdkapital': ["Darlehen", "Hypotheken"],
+                'Eigenkapital': ["Eigenkapital", "Jahresgewinn oder Jahresverlust"]
+            };
+
+            document.querySelectorAll('.konten-title').forEach(title => {
+                const category = title.dataset.category;
+                const items = Array.from(title.querySelectorAll('.konten-item'));
+
+                // Remove existing feedback before new checking
+                items.forEach(item => {
+                    const existingFeedback = item.querySelector('.feedback');
+                    if (existingFeedback) {
+                        existingFeedback.remove();
+                    }
+                });
+
+                // Filter the correct plan based on selected items
+                const filteredCorrectPlan = correctPlan[category]?.filter(planItem =>
+                    items.some(selected => selected.textContent.trim() === planItem)
+                );
+
+                items.forEach((item, index) => {
+                    const isCorrect = filteredCorrectPlan?.[index] === item.textContent.trim();
+                    const feedback = document.createElement('span');
+                    feedback.classList.add('feedback');
+                    feedback.textContent = isCorrect ? '✅' : '❌';
+                    feedback.className = `feedback ${isCorrect ? 'correct' : 'incorrect'}`;
+                    item.appendChild(feedback);
+                });
+            });
+        }
+    </script>
+</body>
+</html>
