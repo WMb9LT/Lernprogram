@@ -11,7 +11,7 @@
             display: flex;
             flex-direction: column;
             gap: 5px;
-            font-size: 0.8em; /* Skalierung für kleine Displays */
+            font-size: 0.8em;
         }
         .konten-container {
             width: 100%;
@@ -21,10 +21,10 @@
             background-color: #f9f9f9; 
             color: #001f3f;
             overflow-y: auto;
-            max-height: 40vh; /* Kleinere maximale Höhe */
+            max-height: 40vh;
         }
         .konten-container h2 {
-            font-size: 1.2em; /* Verkleinerte Schriftgröße */
+            font-size: 1.2em;
             font-weight: bold;
             text-align: center;
         }
@@ -34,12 +34,12 @@
             background-color: #f0f0f0;
             border: 1px solid #ccc;
             cursor: pointer;
-            font-size: 0.9em; /* Verkleinerte Schriftgröße */
+            font-size: 0.9em;
             display: flex;
             justify-content: space-between;
         }
         .konten-title {
-            font-size: 1em; /* Verkleinerte Schriftgröße */
+            font-size: 1em;
             font-style: italic;
             font-weight: bold;
             text-align: center;
@@ -69,7 +69,7 @@
         button {
             padding: 5px;
             margin-top: 5px;
-            font-size: 0.9em; /* Verkleinerte Schriftgröße */
+            font-size: 0.9em;
             width: 100%;
         }
 
@@ -78,9 +78,14 @@
                 flex-direction: row;
                 justify-content: space-between;
             }
-            .konten-container {
+            #aktive {
                 width: 30%;
-                max-height: 60vh;
+            }
+            #passive {
+                width: 30%;
+            }
+            #konten {
+                width: 30%;
             }
             button {
                 width: auto;
@@ -152,6 +157,15 @@
             });
         });
 
+        function shuffleKonten() {
+            const kontenList = document.querySelectorAll('#konten .konten-item');
+            const kontenArray = Array.from(kontenList);
+            kontenArray.sort(() => Math.random() - 0.5);
+            const kontenContainer = document.getElementById('konten');
+            kontenContainer.innerHTML = '';
+            kontenArray.forEach(item => kontenContainer.appendChild(item));
+        }
+
         function checkOrder() {
             const correctPlan = {
                 'Umlaufvermögen': ["Kasse", "Bankguthaben (inkl. PostFinance)", "Wertschriften (mit Börsenkurs)", "Forderungen aus Lieferungen und Leistungen", "Vorsteuer MWST", "Verrechnungssteuer (Guthaben)", "Sonstige kurzfristige Forderungen", "Handelswaren (Warenvorrat)", "Rohstoffe", "Fertige Erzeugnisse (Fertigfabrikate)"],
@@ -174,7 +188,14 @@
                     item.appendChild(feedback);
                 });
             });
+
+            setTimeout(() => {
+                document.querySelectorAll('.feedback').forEach(fb => fb.remove());
+            }, 2000); // Entfernt Feedback nach 2 Sekunden
         }
+
+        // Mischen der Kontenliste beim Laden der Seite
+        document.addEventListener('DOMContentLoaded', shuffleKonten);
     </script>
 </body>
 </html>
